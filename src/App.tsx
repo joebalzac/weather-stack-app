@@ -1,22 +1,12 @@
-// import "./App.css";
-// import { useEffect } from "react";
-// import useData from "./components/useData";
+import WeatherCard from "./components/WeatherCard";
 
-// function App() {
-//   const { data, error, isLoading } = useData("/");
+function App() {
+  return (
+    <div>
+      <h1>Weather Card</h1>
+      <WeatherCard />
+    </div>
+  );
+}
 
-//   useEffect(() => {
-//     if (data.length > 0) {
-//       console.log("Fetched Data:", data);
-//     }
-//   }, [data]);
-
-//   return (
-//     <div>
-//       <h1>Weather Data Test</h1>
-//       <p>Check the console for fetched data.</p>
-//     </div>
-//   );
-// }
-
-// export default App;
+export default App;
