@@ -11,15 +11,17 @@ interface WeatherData {
   };
 
   current: {
-    temperature: number;
-    weather_descriptions: string[];
+    temp: number;
     observation_time: string;
     weather_icons: string[];
-    feelslike: number;
+    feels_like: number;
     pressure: number;
     wind_speed: number;
-    precip: number;
     humidity: number;
+    weather: {
+      main: string;
+      description: string;
+    };
   };
 }
 
@@ -77,17 +79,17 @@ const WeatherCard = () => {
       <div className="flex justify-between items-end">
         <Flex direction={"column"}>
           <Text className="text-gray-50">
-            {data?.current.weather_descriptions[0]}
+            {data?.current.weather.description[0]}
           </Text>
           <Text as="span" fontWeight="bold" className="text-gray-50">
-            Feels like: {data?.current.feelslike}°C
+            Feels like: {data?.current.feels_like}°C
           </Text>
         </Flex>
         <Flex direction={"column"}>
           <Text>Wind: {data?.current.wind_speed} kmph</Text>
-          <Text>Precip: {data?.current.precip} mm</Text>
+
           <Text>Pressure: {data?.current.pressure} mb</Text>
-          <Text className="text-3xl">{data?.current.temperature}°C</Text>
+          <Text className="text-3xl">{data?.current.temp}°C</Text>
         </Flex>
       </div>
     </Card.Root>
