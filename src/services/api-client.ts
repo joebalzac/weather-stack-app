@@ -1,10 +1,8 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://api.weatherstack.com",
+  baseURL: "https://api.openweathermap.org/data/3.0",
   params: {
-    access_key: "1564be0cb85cb33498a59236df3d4c1a",
-    query: "New York",
+    appid: "07c9e65ab628c0e13cc796ae25d8ec4c",
   },
 });
-

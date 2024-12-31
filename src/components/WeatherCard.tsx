@@ -1,7 +1,7 @@
 import { Card, Flex, Text } from "@chakra-ui/react";
 import useData from "../hooks/useData";
 import { FaCloud } from "react-icons/fa";
-import WeatherForecast from "./WeatherForecast";
+import { useEffect, useState } from "react";
 
 interface WeatherData {
   location: {
@@ -24,12 +24,44 @@ interface WeatherData {
 }
 
 const WeatherCard = () => {
-  const { data, isLoading, error } = useData<WeatherData>("/current");
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
+    null
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const newYorkLocation = { lat: 40.7282, lon: -73.7949 };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ lat: latitude, lon: longitude });
+        },
+        (error) => {
+          setErrorMessage("Unable to fetch location. Using default location.");
+          console.error("Geolocation error:", error);
+          setLocation(newYorkLocation);
+        }
+      );
+    } else {
+      setErrorMessage("Geolocation is not supported by your browser.");
+      setLocation(newYorkLocation);
+    }
+  }, []);
+
+  const { data, isLoading, error } = useData<WeatherData>("/onecall", {
+    params: {
+      lat: location?.lat,
+      lon: location?.lon,
+      exclude: "minutely",
+    },
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  if (error) {
+  if (error || errorMessage) {
     return <div>There seems to be an error {error}</div>;
   }
 
