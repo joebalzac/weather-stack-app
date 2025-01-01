@@ -13,6 +13,7 @@ const useData = <T>(
 
   useEffect(
     () => {
+      
       const controller = new AbortController();
       const fetchData = async () => {
         setLoading(true);
