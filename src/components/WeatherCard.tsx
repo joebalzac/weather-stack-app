@@ -48,15 +48,15 @@ const WeatherCard = () => {
     <Card.Root className="text-gray-50 border-4 border-gray-100 shadow-lg p-8 bg-blue-950 rounded-md ">
       <Card.Body gap="2">
         <FaCloud />
-        <Card.Title mt="2">
+        {/* <Card.Title mt="2">
           {data?.location.name} {data?.location.country},{" "}
           {data?.location.region}
-        </Card.Title>
+        </Card.Title> */}
       </Card.Body>
       <div className="flex justify-between items-end">
         <Flex direction={"column"}>
           <Text className="text-gray-50">
-            {data?.current.weather.description[0]}
+            {data?.current.weather.description}
           </Text>
           <Text as="span" fontWeight="bold" className="text-gray-50">
             Feels like: {data?.current.feels_like}°C
