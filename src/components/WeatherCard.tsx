@@ -2,6 +2,7 @@ import { Card, Flex, Text } from "@chakra-ui/react";
 import useData from "../hooks/useData";
 import { FaCloud } from "react-icons/fa";
 import useLocation from "../hooks/useLocation";
+import useGeoCoding from "@/hooks/useGeoCoding";
 
 interface WeatherData {
   current: {
@@ -22,6 +23,10 @@ interface WeatherData {
 const WeatherCard = () => {
   const newYorkLocation = { lat: 40.7282, lon: -73.7949 };
   const { location, errorMessage } = useLocation(newYorkLocation);
+  const { locationName, geoErrorMessage } = useGeoCoding({
+    lat: location?.lat,
+    lon: location?.lon,
+  });
 
   const { data, isLoading, error } = useData<WeatherData>("/data/3.0/onecall", {
     params: {
@@ -34,11 +39,12 @@ const WeatherCard = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  if (error || errorMessage) {
+  if (error || errorMessage || geoErrorMessage) {
     return (
       <div>
         {error && <div>Weather data error: {error}</div>}
         {errorMessage && <div>Location error: {errorMessage}</div>}
+        {geoErrorMessage && <div>GeoCoding error: {geoErrorMessage}</div>}
       </div>
     );
   }
@@ -47,7 +53,9 @@ const WeatherCard = () => {
     <Card.Root className="text-gray-50 border-4 border-gray-100 shadow-lg p-8 bg-blue-950 rounded-md ">
       <Card.Body gap="2">
         <FaCloud />
-        <Card.Title mt="2"></Card.Title>
+        <Card.Title mt="2">
+          {locationName ? locationName : "Unknown location"}
+        </Card.Title>
       </Card.Body>
       <div className="flex justify-between items-end">
         <Flex direction={"column"}>
