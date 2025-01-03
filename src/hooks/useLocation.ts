@@ -26,4 +26,3 @@ const useLocation = (defaultLocation: { lat: number; lon: number }) => {
 
 export default useLocation;
 
-// adds comment for rendering 
