@@ -74,7 +74,7 @@ const WeatherCard = () => {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
+    <div className="w-96 max-w-xl mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
       {view === "current" && (
         <div>
           <div className="pb-6">
