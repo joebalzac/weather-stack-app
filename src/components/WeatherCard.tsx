@@ -11,6 +11,15 @@ interface HourlyWeather {
   weather: { main: string; description: string; icon: string };
 }
 
+interface DailyWeather {
+  dt: number;
+  temp: {
+    day: number;
+    min: number;
+    max: number;
+  };
+}
+
 interface WeatherData {
   current: {
     temp: number;
@@ -26,6 +35,7 @@ interface WeatherData {
     };
   };
   hourly: HourlyWeather[];
+  daily: DailyWeather[];
 }
 
 const kelvinToFahrenheit = (kelvin: number): string => {
@@ -48,12 +58,7 @@ const WeatherCard = () => {
     },
   });
 
-  const [showHourly, setShowHourly] = useState(false);
-
-  const handleSelectedHourly = () => {
-    setShowHourly(!showHourly);
-    console.log("hello motherfucker");
-  };
+  const [view, setView] = useState<"current" | "hourly" | "daily">("current");
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -69,43 +74,22 @@ const WeatherCard = () => {
   }
 
   return (
-    <div className="flex flex-col justify-between items-center text-gray-50 border-4 border-gray-100 shadow-lg p-8 bg-blue-400 rounded-md w-full">
-      <button
-        className=" bg-transparent text-white text-2xl border-teal-300 py-1 px-4"
-        onClick={handleSelectedHourly}
-      >
-        {showHourly ? "Show Current" : "Show Hourly"}
-      </button>
-      {showHourly ? (
-        <div>
-          <h2>Hourly</h2>
-          <div className="flex gap-4">
-            {data?.hourly.slice(0, 6).map((hour) => (
-              <div>
-                <div className="flex flex-col">
-                  {new Date(hour.dt * 1000).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                  <p>{kelvinToFahrenheit(hour.temp)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
+    <div className="w-full max-w-xl mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
+      {view === "current" && (
         <div>
           <div className="pb-6">
-            <FaCloud />
-            <h1 className="text-6xl pb-4">
-              {locationName ? locationName : "Unknown location"}
+            <h1 className="text-6xl font-semibold">
+              {locationName || "Unknown Location"}
             </h1>
-            <h2 className="text-5xl">
-              {kelvinToFahrenheit(data?.current.temp ?? 0)}
-            </h2>
-            <h3 className="text-1xl text-gray-50 font-semibold py-2">
-              Feels like: {kelvinToFahrenheit(data?.current.feels_like ?? 0)}
-            </h3>
+            <div className="flex justify-center items-center my-4">
+              <FaCloud className="text-6xl" />
+              <span className="text-6xl ml-2">
+                {kelvinToFahrenheit(data?.current.temp || 0)}
+              </span>
+            </div>
+            <p className="text-lg">
+              Feels like: {kelvinToFahrenheit(data?.current.feels_like || 0)}
+            </p>
           </div>
           <div className="flex justify-between items-end">
             <div className="flex flex-col">
@@ -118,6 +102,82 @@ const WeatherCard = () => {
           </div>
         </div>
       )}
+
+      {view === "hourly" && (
+        <div>
+          <h2 className="text-lg font-semibold text-center mb-4">
+            48-Hour Forecast
+          </h2>
+          <div className="grid grid-cols-4 gap-2">
+            {data?.hourly.slice(0, 8).map((hour: any, index: number) => (
+              <div key={index} className="text-center">
+                <p className="text-sm">
+                  {new Date(hour.dt * 1000).toLocaleTimeString([], {
+                    hour: "numeric",
+                    hour12: true,
+                  })}
+                </p>
+                <p>{kelvinToFahrenheit(hour.temp)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {view === "daily" && (
+        <div>
+          <h2 className="text-lg font-semibold text-center mb-4">
+            7-Day Forecast
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            {data?.daily.slice(0, 7).map((day: any, index: number) => (
+              <div
+                key={index}
+                className="flex flex-col items-center bg-blue-600 rounded-lg p-4 shadow"
+              >
+                <h3 className="text-sm font-medium">
+                  {new Date(day.dt * 1000).toLocaleDateString("en-US", {
+                    weekday: "short",
+                  })}
+                </h3>
+                <p className="text-sm">{kelvinToFahrenheit(day.temp.day)}</p>
+                <div className="text-xs">
+                  <p>Min: {kelvinToFahrenheit(day.temp.min)}</p>
+                  <p>Max: {kelvinToFahrenheit(day.temp.max)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Buttons */}
+      <div className="flex justify-around mt-6">
+        <button
+          className={`px-4 py-2 rounded ${
+            view === "current" ? "bg-blue-800" : "bg-blue-600"
+          }`}
+          onClick={() => setView("current")}
+        >
+          Current
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            view === "hourly" ? "bg-blue-800" : "bg-blue-600"
+          }`}
+          onClick={() => setView("hourly")}
+        >
+          Hourly
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            view === "daily" ? "bg-blue-800" : "bg-blue-600"
+          }`}
+          onClick={() => setView("daily")}
+        >
+          Daily
+        </button>
+      </div>
     </div>
   );
 };
