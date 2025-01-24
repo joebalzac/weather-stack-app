@@ -1,8 +1,9 @@
 import useData from "../hooks/useData";
-import { FaCloud } from "react-icons/fa";
+import { FaCloud, FaSnowflake, FaSun } from "react-icons/fa";
 import useLocation from "../hooks/useLocation";
 import useGeoCoding from "../hooks/useGeoCoding";
-import { useState } from "react";
+import React, { useState } from "react";
+import { IconType } from "react-icons";
 
 interface HourlyWeather {
   dt: number;
@@ -17,6 +18,10 @@ interface DailyWeather {
     day: number;
     min: number;
     max: number;
+  };
+  weather: {
+    description: string;
+    main: string;
   };
 }
 
@@ -73,6 +78,19 @@ const WeatherCard = () => {
     );
   }
 
+  const getWeatherIcon = (main: string) => {
+    const weatherIcons: {
+      [key: string]: { icon: IconType; className: string };
+    } = {
+      Clouds: { icon: FaCloud, className: "text-gray-500" },
+      Rain: { icon: FaCloud, className: "text-blue-500" },
+      Clear: { icon: FaSun, className: "text-yellow-400" },
+      Snow: { icon: FaSnowflake, className: "text-white-500" },
+    };
+
+    return weatherIcons[main] || { icon: FaCloud, className: "text-gray-400" }; // Default icon and color
+  };
+
   return (
     <div className="w-96 max-w-xl mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
       {view === "current" && (
@@ -82,7 +100,15 @@ const WeatherCard = () => {
               {locationName || "Unknown Location"}
             </h1>
             <div className="flex justify-center items-center my-4">
-              <FaCloud className="text-6xl" />
+              {React.createElement(
+                getWeatherIcon(data?.current.weather.main || "Unknown").icon,
+                {
+                  className: `text-6xl ${
+                    getWeatherIcon(data?.current.weather.main || "Unknown")
+                      .className
+                  }`,
+                }
+              )}
               <span className="text-6xl ml-2">
                 {kelvinToFahrenheit(data?.current.temp || 0)}
               </span>
