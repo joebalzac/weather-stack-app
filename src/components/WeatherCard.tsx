@@ -2,7 +2,6 @@ import useData from "../hooks/useData";
 import {
   FaCloud,
   FaCloudSun,
-  FaMoon,
   FaSnowflake,
   FaSun,
 } from "react-icons/fa";
@@ -10,7 +9,6 @@ import useLocation from "../hooks/useLocation";
 import useGeoCoding from "../hooks/useGeoCoding";
 import React, { useState } from "react";
 import { IconType } from "react-icons";
-import { WiSunset } from "react-icons/wi";
 import { FiSunrise, FiSunset } from "react-icons/fi";
 
 interface HourlyWeather {
