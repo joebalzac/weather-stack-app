@@ -1,15 +1,23 @@
 import useData from "../hooks/useData";
-import { FaCloud, FaSnowflake, FaSun } from "react-icons/fa";
+import {
+  FaCloud,
+  FaCloudSun,
+  FaMoon,
+  FaSnowflake,
+  FaSun,
+} from "react-icons/fa";
 import useLocation from "../hooks/useLocation";
 import useGeoCoding from "../hooks/useGeoCoding";
 import React, { useState } from "react";
 import { IconType } from "react-icons";
+import { WiSunset } from "react-icons/wi";
+import { FiSunrise, FiSunset } from "react-icons/fi";
 
 interface HourlyWeather {
   dt: number;
   temp: number;
   feels_like: number;
-  weather: { main: string; description: string; icon: string };
+  weather: { main: string; description: string; icon: string }[];
 }
 
 interface DailyWeather {
@@ -20,9 +28,10 @@ interface DailyWeather {
     max: number;
   };
   weather: {
-    description: string;
     main: string;
-  };
+    description: string;
+    icon: string;
+  }[];
 }
 
 interface WeatherData {
@@ -34,6 +43,8 @@ interface WeatherData {
     pressure: number;
     wind_speed: number;
     humidity: number;
+    sunrise: string;
+    sunset: string;
     weather: {
       main: string;
       description: string;
@@ -44,7 +55,7 @@ interface WeatherData {
 }
 
 const kelvinToFahrenheit = (kelvin: number): string => {
-  return `${(((kelvin - 273.15) * 9) / 5 + 32).toFixed(2)}°F`;
+  return `${(((kelvin - 273.15) * 9) / 5 + 32).toFixed(0)}°F`;
 };
 
 const WeatherCard = () => {
@@ -83,6 +94,7 @@ const WeatherCard = () => {
       [key: string]: { icon: IconType; className: string };
     } = {
       Clouds: { icon: FaCloud, className: "text-gray-500" },
+      PartlyCloudy: { icon: FaCloudSun, className: "text-yellow-400" },
       Rain: { icon: FaCloud, className: "text-blue-500" },
       Clear: { icon: FaSun, className: "text-yellow-400" },
       Snow: { icon: FaSnowflake, className: "text-white-500" },
@@ -92,14 +104,14 @@ const WeatherCard = () => {
   };
 
   return (
-    <div className="w-96 max-w-xl mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
+    <div className="w-full mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-b from-blue-500 to-blue-700 text-white">
       {view === "current" && (
         <div>
           <div className="pb-6">
             <h1 className="text-6xl font-semibold">
               {locationName || "Unknown Location"}
             </h1>
-            <div className="flex justify-center items-center my-4">
+            <div className="flex justify-start items-center my-4">
               {React.createElement(
                 getWeatherIcon(data?.current.weather.main || "Unknown").icon,
                 {
@@ -113,11 +125,11 @@ const WeatherCard = () => {
                 {kelvinToFahrenheit(data?.current.temp || 0)}
               </span>
             </div>
-            <p className="text-lg">
+            <p className="text-xl font-medium">
               Feels like: {kelvinToFahrenheit(data?.current.feels_like || 0)}
             </p>
           </div>
-          <div className="flex justify-between items-end">
+          <div className="flex flex-col justify-between gap-8">
             <div className="flex flex-col">
               <h4 className="text-gray-50">
                 {data?.current.weather.description}
@@ -125,27 +137,63 @@ const WeatherCard = () => {
               <h4>Wind: {data?.current.wind_speed} kmph</h4>
               <h4>Pressure: {data?.current.pressure} mb</h4>
             </div>
+
+            <div>
+              <FiSunrise className="text-3xl text-yellow-200" />
+              <p>
+                Sun Rise:{" "}
+                {new Date(
+                  (Number(data?.current.sunrise) || 0) * 1000
+                ).toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                })}
+              </p>
+            </div>
+            <div>
+              <FiSunset className="text-3xl text-orange-600" />
+              <p>
+                Sunset:{" "}
+                {new Date(
+                  (Number(data?.current.sunset) || 0) * 1000
+                ).toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                })}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {view === "hourly" && (
         <div>
-          <h2 className="text-lg font-semibold text-center mb-4">
-            48-Hour Forecast
-          </h2>
-          <div className="grid grid-cols-4 gap-2">
-            {data?.hourly.slice(0, 8).map((hour: any, index: number) => (
-              <div key={index} className="text-center">
-                <p className="text-sm">
-                  {new Date(hour.dt * 1000).toLocaleTimeString([], {
-                    hour: "numeric",
-                    hour12: true,
-                  })}
-                </p>
-                <p>{kelvinToFahrenheit(hour.temp)}</p>
-              </div>
-            ))}
+          <h2 className="text-lg font-semibold  mb-4">48-Hour Forecast</h2>
+          <div className="grid grid-cols-8 gap-8">
+            {data?.hourly
+              .slice(0, 8)
+              .map((hour: HourlyWeather, index: number) => (
+                <div key={index} className="text-center flex flex-col gap-4">
+                  <p className="text-sm">
+                    {new Date(hour.dt * 1000).toLocaleTimeString([], {
+                      hour: "numeric",
+                      hour12: true,
+                    })}
+                  </p>
+                  {React.createElement(
+                    getWeatherIcon(hour.weather[0].main || "Unknown").icon,
+                    {
+                      className: `text-6xl ${
+                        getWeatherIcon(hour.weather[0].main || "Unknown")
+                          .className
+                      }`,
+                    }
+                  )}
+                  <p>{kelvinToFahrenheit(hour.temp)}</p>
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -155,24 +203,36 @@ const WeatherCard = () => {
           <h2 className="text-lg font-semibold text-center mb-4">
             7-Day Forecast
           </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {data?.daily.slice(0, 7).map((day: any, index: number) => (
-              <div
-                key={index}
-                className="flex flex-col items-center bg-blue-600 rounded-lg p-4 shadow"
-              >
-                <h3 className="text-sm font-medium">
-                  {new Date(day.dt * 1000).toLocaleDateString("en-US", {
-                    weekday: "short",
-                  })}
-                </h3>
-                <p className="text-sm">{kelvinToFahrenheit(day.temp.day)}</p>
-                <div className="text-xs">
-                  <p>Min: {kelvinToFahrenheit(day.temp.min)}</p>
-                  <p>Max: {kelvinToFahrenheit(day.temp.max)}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 items-center">
+            {data?.daily.slice(0, 8).map((day: DailyWeather, index: number) => {
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col gap-4 items-center bg-blue-600 rounded-lg p-4 shadow"
+                >
+                  <h3 className="text-sm font-medium">
+                    {new Date(day.dt * 1000).toLocaleDateString("en-US", {
+                      weekday: "short",
+                    })}
+                  </h3>
+
+                  {React.createElement(
+                    getWeatherIcon(day.weather[0].main || "Unknown").icon,
+                    {
+                      className: `text-6xl ${
+                        getWeatherIcon(day.weather[0].main || "Unknown")
+                          .className
+                      }`,
+                    }
+                  )}
+                  <p className="text-sm">{kelvinToFahrenheit(day.temp.day)}</p>
+                  <div className="text-xs">
+                    <p>Min: {kelvinToFahrenheit(day.temp.min)}</p>
+                    <p>Max: {kelvinToFahrenheit(day.temp.max)}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
